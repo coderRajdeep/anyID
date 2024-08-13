@@ -21,6 +21,18 @@ const ImageUploader = ({ onUpload }) => {
     }
   };
 
+  const handleDrop = (e) => {
+    e.preventDefault();
+    const file = e.dataTransfer.files[0];
+    if (file && selectedCategory) {
+      onUpload(file, selectedCategory);
+    }
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+  };
+
   const handleImageUpload = async (file) => {
     setLoading(true);
     try {
@@ -81,11 +93,20 @@ const ImageUploader = ({ onUpload }) => {
         ))}
       </select>
       <div className="flex space-x-4 mb-4">
-        <label
-          htmlFor="image-upload"
+      <label
           className="bg-white text-green-800 font-bold py-2 px-4 rounded cursor-pointer transition-colors hover:bg-green-300"
+          onDragOver={handleDragOver}
+          onDrop={handleDrop}
         >
-          {loading ? 'Processing...' : 'Upload Image'}
+          Upload Image
+          <input
+            ref={fileInputRef}
+            type="file"
+            className="hidden"
+            onChange={handleFileChange}
+            accept="image/*"
+            disabled={!selectedCategory || showCamera}
+          />
         </label>
         <button
           onClick={openCamera}
