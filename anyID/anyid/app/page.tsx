@@ -7,6 +7,8 @@ import { GoogleGenerativeAI } from '@google/generative-ai'
 import ImageUploader from './components/ImageUploader'
 import IdentificationResult from './components/IdentificationResult'
 import IdentifyAnimation from './components/IdentifyAnimation'
+import HowToUse from './components/Howtouse'
+
 
 const API_KEY = 'AIzaSyBMmaBLlzS3VUp8hNrF9Vj4rNSLLutxM7s'
 const genAI = new GoogleGenerativeAI(API_KEY)
@@ -144,6 +146,7 @@ export default function Home() {
       {loading && <p className="text-center mt-4">Identifying image...</p>}
       {error && <p className="text-red-500 text-center mt-4">{error}</p>}
       <IdentificationResult result={identificationResult} imageUrl={imageUrl} />
+      {!imageUrl && <HowToUse />}
     </div>
   )
 }
