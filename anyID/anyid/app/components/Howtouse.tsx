@@ -48,8 +48,8 @@ import {
             <h2 className="text-3xl font-extrabold text-blue sm:text-4xl">
               How to Use anyID
             </h2>
-            <p className="mt-4 text-xl text-gray-800">
-              Discover the world of plants with these easy steps
+            <p className="mt-4 text-xl text-blue-100">
+               Explore the World Around You with These Simple Steps
             </p>
           </div>
           <div className="mt-10">

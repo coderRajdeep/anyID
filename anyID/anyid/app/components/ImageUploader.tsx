@@ -35,7 +35,12 @@ const ImageUploader = ({ onUpload }) => {
   const openCamera = async () => {
     setShowCamera(true);
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: { exact: 'environment' }, // Use the back camera
+        },
+      });
+
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
       }
@@ -66,11 +71,11 @@ const ImageUploader = ({ onUpload }) => {
       <select
         value={selectedCategory}
         onChange={(e) => setSelectedCategory(e.target.value)}
-        className="w-full p-2 border rounded"
+        className="w-full p-2 border rounded text-gray-800"
       >
-        <option value="">Select a category</option>
+        <option value="text-gray-800" className="">Select a category</option>
         {categories.map((category) => (
-          <option key={category} value={category}>
+          <option key={category} value={category} className="text-gray-800">
             {category}
           </option>
         ))}
@@ -115,3 +120,4 @@ const ImageUploader = ({ onUpload }) => {
 };
 
 export default ImageUploader;
+
