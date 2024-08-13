@@ -73,7 +73,7 @@ const ImageUploader = ({ onUpload }) => {
         onChange={(e) => setSelectedCategory(e.target.value)}
         className="w-full p-2 border rounded text-gray-800"
       >
-        <option value="text-gray-800" className="">Select a category</option>
+        <option value="" className="text-gray-800">Select a category</option>
         {categories.map((category) => (
           <option key={category} value={category} className="text-gray-800">
             {category}

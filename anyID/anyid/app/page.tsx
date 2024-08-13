@@ -24,12 +24,12 @@ export default function Home() {
       case 'famous person':
         return `Identify the famous person in this image and provide the following information:
           1. Full Name
-          2. Profession/Occupation
+          2. Profession
           3. Date of Birth
           4. Nationality
           5. Notable Achievements
           6. Brief Biography
-          7. Important Works or Contributions
+          7. Important Works
           8. Awards or Honors
           Don't give ** in the response and give the information as JSON format and the value should always be in string`
       case 'animal':
