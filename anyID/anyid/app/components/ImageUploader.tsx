@@ -34,6 +34,7 @@ const ImageUploader = ({ onUpload }) => {
   };
 
   const handleImageUpload = async (file) => {
+    
     setLoading(true);
     try {
       onUpload(file, selectedCategory);  // Call the onUpload function passed from the parent
