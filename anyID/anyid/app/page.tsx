@@ -1,4 +1,5 @@
-// app/page.tsx
+
+
 
 'use client'
 
@@ -9,17 +10,26 @@ import IdentificationResult from './components/IdentificationResult'
 import IdentifyAnimation from './components/IdentifyAnimation'
 import HowToUse from './components/Howtouse'
 
-
 const API_KEY = 'AIzaSyBMmaBLlzS3VUp8hNrF9Vj4rNSLLutxM7s'
 const genAI = new GoogleGenerativeAI(API_KEY)
 
-export default function Home() {
-  const [identificationResult, setIdentificationResult] = useState(null)
-  const [imageUrl, setImageUrl] = useState(null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
+interface IdentificationDetails {
+  [key: string]: string;
+}
 
-  const createPrompt = (category) => {
+interface IdentificationResult {
+  name: string;
+  description: string;
+  details: IdentificationDetails;
+}
+
+export default function Home() {
+  const [identificationResult, setIdentificationResult] = useState<IdentificationResult | null>(null)
+  const [imageUrl, setImageUrl] = useState<string | null>(null)
+  const [loading, setLoading] = useState<boolean>(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const createPrompt = (category: string): string => {
     switch (category) {
       case 'famous person':
         return `Identify the famous person in this image and provide the following information:
@@ -69,7 +79,7 @@ export default function Home() {
     }
   }
 
-  const handleUpload = async (file, category) => {
+  const handleUpload = async (file: File, category: string) => {
     setLoading(true)
     setError(null)
     setImageUrl(URL.createObjectURL(file))
@@ -98,7 +108,7 @@ export default function Home() {
       const lines = text.split('\n').filter(line => line.trim() !== '')
       let name = "unknown"
       let description = ""
-      const details = {}
+      const details: IdentificationDetails = {}
   
       lines.forEach((line, index) => {
         const [key, ...valueParts] = line.split(':')
@@ -116,31 +126,28 @@ export default function Home() {
           }
         }
       })
-      console.log(details)
-      name=details[Object.keys(details)[0]]
+  
+      name = details[Object.keys(details)[0]]
       setIdentificationResult({ name, description, details })
     } catch (err) {
       console.error('Error identifying image:', err)
-      setError(`An error occurred while identifying the image: ${err.message}`)
+      setError(`An error occurred while identifying the image: ${(err as Error).message || 'Unknown error'}`);
     } finally {
       setLoading(false)
     }
   }
 
-  const fileToBase64 = (file) => {
+  const fileToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader()
       reader.readAsDataURL(file)
-      reader.onload = () => resolve(reader.result)
+      reader.onload = () => resolve(reader.result as string)
       reader.onerror = (error) => reject(error)
     })
   }
 
-  
-
   return (
     <div className="max-w-4xl mx-auto px-4">
-      {/* <h1 className="text-4xl font-bold mb-8 text-center text-green-700">Identify Anything</h1> */}
       <IdentifyAnimation />
       <ImageUploader onUpload={handleUpload} />
       {loading && <p className="text-center mt-4">Identifying image...</p>}

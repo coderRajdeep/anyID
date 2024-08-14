@@ -1,7 +1,22 @@
+
+
 import Image from 'next/image'
 
-const IdentificationResult = ({ result, imageUrl }) => {
-  if (!result) return null
+interface ResultDetails {
+  [key: string]: string;
+}
+
+interface IdentificationResultProps {
+  result: {
+    name?: string;
+    description?: string;
+    details: ResultDetails;
+  } | null;
+  imageUrl: string | null;
+}
+
+const IdentificationResult: React.FC<IdentificationResultProps> = ({ result, imageUrl }) => {
+  if (!result) return null;
 
   return (
     <div className="bg-white shadow-lg rounded-lg overflow-hidden mt-8 mx-4 md:mx-0">
@@ -39,7 +54,7 @@ const IdentificationResult = ({ result, imageUrl }) => {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default IdentificationResult
+export default IdentificationResult;
