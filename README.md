@@ -43,7 +43,7 @@ Once your image is uploaded, AnyID’s advanced AI will analyze it and identify 
 
 ![image](https://github.com/user-attachments/assets/1ef0999a-18d5-4b77-ad76-b28fc3bdfbd5)
 
-![image](https://github.com/user-attachments/assets/c4ad5907-0892-4092-941a-06fa27896c82)
+![image](https://github.com/user-attachments/assets/300d2c22-d7a7-4eaf-84ce-9b7be8d538f3)
 
 ### Animal Identification -
 
