@@ -66,6 +66,18 @@ export default function Home() {
           8. Growing Conditions
           9. Uses (Ornamental, Medicinal, Culinary, etc.)
           Don't give ** in the response and give the information as JSON format and the value should always be in string`
+      case 'vehicle':
+        return `Identify the vehicle in this image and provide the following information:
+          1. Company and Model Name
+          2. Type (Car, Truck, Motorcycle, etc.)
+          3. Year of Manufacture
+          4. Engine Type and Specifications
+          5. Fuel Type
+          6. Transmission Type
+          7. Features and Technology
+          8. Performance Data
+          9. Safety Features
+          Don't give ** in the response and give the information as JSON format and the value should always be in string`
       default:
         return `Identify the object or entity in this image and provide the following information:
           1. Name

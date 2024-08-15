@@ -7,6 +7,7 @@ const words = [
   "plants",
   "anime characters",
   "real-life objects",
+  "vehicles",
   "anything",
 ];
 

@@ -6,7 +6,7 @@ interface ImageUploaderProps {
   onUpload: (file: File, category: string) => void;
 }
 
-const categories = ['Famous Person', 'Animal', 'Plant', 'Other'];
+const categories = ['Famous Person', 'Animal', 'Plant','Vehicle', 'Other'];
 
 const ImageUploader: React.FC<ImageUploaderProps> = ({ onUpload }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('');
