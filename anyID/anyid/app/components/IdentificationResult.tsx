@@ -10,6 +10,7 @@ interface IdentificationResultProps {
   result: {
     name?: string;
     description?: string;
+    hyperlinkValue:string|TrustedHTML;
     details: ResultDetails;
   } | null;
   imageUrl: string | null;
@@ -48,6 +49,12 @@ const IdentificationResult: React.FC<IdentificationResultProps> = ({ result, ima
                     <td className="py-2 text-gray-800">{value}</td>
                   </tr>
                 ))}
+                <tr className="border-b">
+                    <td className="py-2 font-semibold text-gray-600 pr-2">Know More :</td>
+                    <td className="py-2 text-gray-800">
+                        {<span className="py-2 text-gray-800" dangerouslySetInnerHTML={{ __html: result.hyperlinkValue }}></span>}
+                    </td>
+                </tr>
               </tbody>
             </table>
           </div>

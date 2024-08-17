@@ -20,6 +20,7 @@ interface IdentificationDetails {
 interface IdentificationResult {
   name: string;
   description: string;
+  hyperlinkValue: string;
   details: IdentificationDetails;
 }
 
@@ -32,7 +33,7 @@ export default function Home() {
   const createPrompt = (category: string): string => {
     switch (category) {
       case 'famous person':
-        return `Identify the famous person in this image and provide the following information:
+        return `Identify the famous person/fictional character in this image and provide the following information:
           1. Full Name
           2. Profession
           3. Date of Birth
@@ -41,9 +42,10 @@ export default function Home() {
           6. Brief Biography
           7. Important Works
           8. Awards or Honors
+          9. Link to know more
           Don't give ** in the response and give the information as JSON format and the value should always be in string`
       case 'animal':
-        return `Identify the animal in this image and provide the following information:
+        return `Identify the animal/bird in this image and provide the following information:
           1. Common Name
           2. Scientific Name
           3. Classification (Mammal, Reptile, etc.)
@@ -53,6 +55,7 @@ export default function Home() {
           7. Conservation Status
           8. Physical Characteristics
           9. Behavioral Traits
+          10. Link to know more
           Don't give ** in the response and give the information as JSON format and the value should always be in string`
       case 'plant':
         return `Identify the plant in this image and provide the following information:
@@ -65,6 +68,7 @@ export default function Home() {
           7. Flower Characteristics (if applicable)
           8. Growing Conditions
           9. Uses (Ornamental, Medicinal, Culinary, etc.)
+          10. Link to know more
           Don't give ** in the response and give the information as JSON format and the value should always be in string`
       case 'vehicle':
         return `Identify the vehicle in this image and provide the following information:
@@ -77,6 +81,7 @@ export default function Home() {
           7. Features and Technology
           8. Performance Data
           9. Safety Features
+          10. Parent Company Official website
           Don't give ** in the response and give the information as JSON format and the value should always be in string`
       default:
         return `Identify the object or entity in this image and provide the following information:
@@ -87,10 +92,10 @@ export default function Home() {
           5. Composition or Materials
           6. Notable Features
           7. Cultural Significance (if any)
+          8. Link to know more
           Don't give ** in the response and give the information as JSON format and the value should always be in string`
     }
   }
-
   const handleUpload = async (file: File, category: string) => {
     setLoading(true)
     setError(null)
@@ -114,33 +119,31 @@ export default function Home() {
       const response = await result.response
       const text = response.text()
   
-      console.log(text) // Log the full response for debugging
-  
       // Parse the response more robustly
       const lines = text.split('\n').filter(line => line.trim() !== '')
       let name = "unknown"
       let description = ""
       const details: IdentificationDetails = {}
+      let hyperlinkValue=""
+      let count=0;
   
       lines.forEach((line, index) => {
         const [key, ...valueParts] = line.split(':')
         const value = valueParts.join(':').trim()
-  
-        if (index === 0 && !line.includes(':')) {
-          name = Object.keys(response)[0]
-        } else if (key && value) {
-          if (index === 1 && description === "") {
-            description = value
-          } else {
-            key.trim()
-            value.trim()
-            details[key.substring(3,key.length-1)] = value.substring(1,value.length-2)
-          }
+        
+        if (line.includes(':')) {
+            let mainkey=key.replace(/"/g, '').trim()
+            let mainvalue=value.replace(/"/g, '').trim()
+            if(mainkey==="Link to know more" || mainkey==="Parent Company Official website"){
+              hyperlinkValue = `<a href="${mainvalue}" target="_blank" rel="noopener noreferrer" style="color: blue; text-decoration: underline;">${mainvalue}</a>`
+            }
+            else details[mainkey] = mainvalue.substring(0,mainvalue.length-1)
         }
       })
   
       name = details[Object.keys(details)[0]]
-      setIdentificationResult({ name, description, details })
+
+      setIdentificationResult({ name, description,hyperlinkValue, details })
     } catch (err) {
       console.error('Error identifying image:', err)
       setError(`An error occurred while identifying the image: ${(err as Error).message || 'Unknown error'}`);
