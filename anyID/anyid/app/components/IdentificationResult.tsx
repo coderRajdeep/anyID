@@ -9,8 +9,7 @@ interface ResultDetails {
 interface IdentificationResultProps {
   result: {
     name?: string;
-    description?: string;
-    hyperlinkValue:string|TrustedHTML;
+    hyperlinkValue: string | TrustedHTML;
     details: ResultDetails;
   } | null;
   imageUrl: string | null;
@@ -22,7 +21,7 @@ const IdentificationResult: React.FC<IdentificationResultProps> = ({ result, ima
   return (
     <div className="bg-white shadow-lg rounded-lg overflow-hidden mt-8 mx-4 md:mx-0">
       <div className="p-4 md:p-6">
-        <h2 className="text-2xl md:text-3xl font-bold text-green-700 mb-2">{result.name || 'Unknown'}</h2>
+        <h2 className="text-2xl md:text-3xl font-bold text-green-700 mb-4">{result.name || 'Unknown'}</h2>
         <div className="flex flex-col md:flex-row gap-4 md:gap-6">
           <div className="md:w-1/2 w-full">
             {imageUrl && (
@@ -37,26 +36,21 @@ const IdentificationResult: React.FC<IdentificationResultProps> = ({ result, ima
             )}
           </div>
           <div className="md:w-1/2 w-full">
-            {result.description && (
-              <p className="text-gray-700 mb-4 text-sm md:text-base">{result.description}</p>
-            )}
             <h3 className="text-lg md:text-xl font-semibold text-green-700 mb-2">Details</h3>
-            <table className="w-full text-sm md:text-base">
-              <tbody>
-                {Object.entries(result.details).map(([key, value]) => (
-                  <tr key={key} className="border-b">
-                    <td className="py-2 font-semibold text-gray-600 pr-2">{key} :</td>
-                    <td className="py-2 text-gray-800">{value}</td>
-                  </tr>
-                ))}
-                <tr className="border-b">
-                    <td className="py-2 font-semibold text-gray-600 pr-2">Know More :</td>
-                    <td className="py-2 text-gray-800">
-                        {<span className="py-2 text-gray-800" dangerouslySetInnerHTML={{ __html: result.hyperlinkValue }}></span>}
-                    </td>
-                </tr>
-              </tbody>
-            </table>
+            <div className="grid grid-cols-1 gap-2">
+              {Object.entries(result.details).map(([key, value]) => (
+                <div key={key} className="flex flex-col sm:flex-row border-b py-2">
+                  <span className="font-semibold text-gray-600 sm:w-1/3 mb-1 sm:mb-0">{key} :</span>
+                  <span className="text-gray-800 sm:w-2/3">{value}</span>
+                </div>
+              ))}
+              <div className="flex flex-col sm:flex-row border-b py-2">
+                <span className="font-semibold text-gray-600 sm:w-1/3 mb-1 sm:mb-0">Know More :</span>
+                <span className="text-gray-800 sm:w-2/3 break-words">
+                  <span dangerouslySetInnerHTML={{ __html: result.hyperlinkValue }}></span>
+                </span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -65,3 +59,4 @@ const IdentificationResult: React.FC<IdentificationResultProps> = ({ result, ima
 }
 
 export default IdentificationResult;
+
