@@ -10,7 +10,7 @@ import IdentificationResult from './components/IdentificationResult'
 import IdentifyAnimation from './components/IdentifyAnimation'
 import HowToUse from './components/Howtouse'
 
-const API_KEY = 'AIzaSyBMmaBLlzS3VUp8hNrF9Vj4rNSLLutxM7s'
+const API_KEY = process.env.NEXT_PUBLIC_GOOGLE_GENERATIVE_AI_KEY as string;
 const genAI = new GoogleGenerativeAI(API_KEY)
 
 interface IdentificationDetails {
