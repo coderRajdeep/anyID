@@ -167,7 +167,7 @@ export default function Home() {
       <ImageUploader onUpload={handleUpload} />
       {loading && <p className="text-center mt-4">Identifying image...</p>}
       {error && <p className="text-red-500 text-center mt-4">{error}</p>}
-      <IdentificationResult result={identificationResult} imageUrl={imageUrl} />
+      <IdentificationResult result={identificationResult} imageUrl={imageUrl} loading={loading} />
       {!imageUrl && <HowToUse />}
     </div>
   )
