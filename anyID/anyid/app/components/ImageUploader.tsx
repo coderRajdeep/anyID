@@ -20,6 +20,11 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onUpload }) => {
     if (file && selectedCategory) {
       handleImageUpload(file);
     }
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+    
   };
 
   const handleDrop = (e: DragEvent<HTMLLabelElement>) => {
