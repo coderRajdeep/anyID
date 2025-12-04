@@ -1,178 +1,3 @@
-
-
-
-// 'use client'
-
-// import { useState } from 'react'
-// import { GoogleGenerativeAI } from '@google/generative-ai'
-// import ImageUploader from './components/ImageUploader'
-// import IdentificationResult from './components/IdentificationResult'
-// import IdentifyAnimation from './components/IdentifyAnimation'
-// import HowToUse from './components/Howtouse'
-
-// const API_KEY = process.env.NEXT_PUBLIC_GOOGLE_GENERATIVE_AI_KEY as string;
-// const genAI = new GoogleGenerativeAI(API_KEY)
-
-// interface IdentificationDetails {
-//   [key: string]: string;
-// }
-
-// interface IdentificationResult {
-//   name: string;
-//   description: string;
-//   hyperlinkValue: string;
-//   details: IdentificationDetails;
-// }
-
-// export default function Home() {
-//   const [identificationResult, setIdentificationResult] = useState<IdentificationResult | null>(null)
-//   const [imageUrl, setImageUrl] = useState<string | null>(null)
-//   const [loading, setLoading] = useState<boolean>(false)
-//   const [error, setError] = useState<string | null>(null)
-
-//   const createPrompt = (category: string): string => {
-//     switch (category) {
-//       case 'famous person':
-//         return `Identify the famous person/fictional character in this image and provide the following information:
-//           1. Full Name
-//           2. Profession
-//           3. Date of Birth
-//           4. Nationality
-//           5. Notable Achievements
-//           6. Brief Biography
-//           7. Important Works
-//           8. Awards or Honors
-//           9. Link to know more
-//           Don't give ** in the response and give the information as JSON format and the value should always be in string`
-//       case 'animal':
-//         return `Identify the animal/bird in this image and provide the following information:
-//           1. Common Name
-//           2. Scientific Name
-//           3. Classification (Mammal, Reptile, etc.)
-//           4. Habitat
-//           5. Diet
-//           6. Lifespan
-//           7. Conservation Status
-//           8. Physical Characteristics
-//           9. Behavioral Traits
-//           10. Link to know more
-//           Don't give ** in the response and give the information as JSON format and the value should always be in string`
-//       case 'plant':
-//         return `Identify the plant in this image and provide the following information:
-//           1. Common Name
-//           2. Scientific Name
-//           3. Plant Family
-//           4. Native Region
-//           5. Type (Tree, Shrub, Flower, etc.)
-//           6. Leaf Characteristics
-//           7. Flower Characteristics (if applicable)
-//           8. Growing Conditions
-//           9. Uses (Ornamental, Medicinal, Culinary, etc.)
-//           10. Link to know more
-//           Don't give ** in the response and give the information as JSON format and the value should always be in string`
-//       case 'vehicle':
-//         return `Identify the vehicle in this image and provide the following information:
-//           1. Company and Model Name
-//           2. Type (Car, Truck, Motorcycle, etc.)
-//           3. Year of Manufacture
-//           4. Engine Type and Specifications
-//           5. Fuel Type
-//           6. Transmission Type
-//           7. Features and Technology
-//           8. Performance Data
-//           9. Safety Features
-//           10. Parent Company Official website
-//           Don't give ** in the response and give the information as JSON format and the value should always be in string`
-//       default:
-//         return `Identify the object or entity in this image and provide the following information:
-//           1. Name
-//           2. Category or Classification
-//           3. Primary Use or Purpose
-//           4. Origin or History
-//           5. Composition or Materials
-//           6. Notable Features
-//           7. Cultural Significance (if any)
-//           8. Link to know more
-//           Don't give ** in the response and give the information as JSON format and the value should always be in string`
-//     }
-//   }
-//   const handleUpload = async (file: File, category: string) => {
-//     setLoading(true)
-//     setError(null)
-//     setImageUrl(URL.createObjectURL(file))
-  
-//     try {
-//       const base64Image = await fileToBase64(file)
-//       const prompt = createPrompt(category.toLowerCase())
-  
-//       const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
-//       const result = await model.generateContent([
-//         prompt,
-//         {
-//           inlineData: {
-//             mimeType: file.type,
-//             data: base64Image.split(',')[1]
-//           }
-//         }
-//       ])
-  
-//       const response = await result.response
-//       const text = response.text()
-  
-//       // Parse the response more robustly
-//       const lines = text.split('\n').filter(line => line.trim() !== '')
-//       let name = "unknown"
-//       let description = ""
-//       const details: IdentificationDetails = {}
-//       let hyperlinkValue=""
-//       let count=0;
-  
-//       lines.forEach((line, index) => {
-//         const [key, ...valueParts] = line.split(':')
-//         const value = valueParts.join(':').trim()
-        
-//         if (line.includes(':')) {
-//             let mainkey=key.replace(/"/g, '').trim()
-//             let mainvalue=value.replace(/"/g, '').trim()
-//             if(mainkey==="Link to know more" || mainkey==="Parent Company Official website"){
-//               hyperlinkValue = `<a href="${mainvalue}" target="_blank" rel="noopener noreferrer" style="color: blue; text-decoration: underline;">${mainvalue}</a>`
-//             }
-//             else details[mainkey] = mainvalue.substring(0,mainvalue.length-1)
-//         }
-//       })
-  
-//       name = details[Object.keys(details)[0]]
-
-//       setIdentificationResult({ name, description,hyperlinkValue, details })
-//     } catch (err) {
-//       console.error('Error identifying image:', err)
-//       setError(`An error occurred while identifying the image: ${(err as Error).message || 'Unknown error'}`);
-//     } finally {
-//       setLoading(false)
-//     }
-//   }
-
-//   const fileToBase64 = (file: File): Promise<string> => {
-//     return new Promise((resolve, reject) => {
-//       const reader = new FileReader()
-//       reader.readAsDataURL(file)
-//       reader.onload = () => resolve(reader.result as string)
-//       reader.onerror = (error) => reject(error)
-//     })
-//   }
-
-//   return (
-//     <div className="max-w-4xl mx-auto px-4">
-//       <IdentifyAnimation />
-//       <ImageUploader onUpload={handleUpload} />
-//       {loading && <p className="text-center mt-4">Identifying image...</p>}
-//       {error && <p className="text-red-500 text-center mt-4">{error}</p>}
-//       <IdentificationResult result={identificationResult} imageUrl={imageUrl} loading={loading} />
-//       {!imageUrl && <HowToUse />}
-//     </div>
-//   )
-// }
-
 'use client'
 
 import { useState } from 'react'
@@ -181,144 +6,82 @@ import ImageUploader from './components/ImageUploader'
 import IdentificationResult from './components/IdentificationResult'
 import IdentifyAnimation from './components/IdentifyAnimation'
 import HowToUse from './components/Howtouse'
+import ChatSection from './components/ChatSection'
+import HistoryList from './components/HistoryList'
+import CompareSection from './components/CompareSection'
+import { useHistory } from './hooks/useHistory'
+import { IdentificationResultType } from './types'
 
 const API_KEY = process.env.NEXT_PUBLIC_GOOGLE_GENERATIVE_AI_KEY as string;
 const genAI = new GoogleGenerativeAI(API_KEY)
 
-interface IdentificationDetails {
-  [key: string]: string;
-}
-
-interface IdentificationResult {
-  name: string;
-  description: string;
-  hyperlinkValue: string;
-  details: IdentificationDetails;
-}
-
 export default function Home() {
-  const [identificationResult, setIdentificationResult] = useState<IdentificationResult | null>(null)
+  const [identificationResult, setIdentificationResult] = useState<IdentificationResultType | null>(null)
   const [imageUrl, setImageUrl] = useState<string | null>(null)
   const [loading, setLoading] = useState<boolean>(false)
   const [error, setError] = useState<string | null>(null)
-  const [language, setLanguage] = useState<string>('English') // Default language
-  const [selectedLanguage, setSelectedLanguage] = useState<string>(''); // Default language
+  const [selectedLanguage, setSelectedLanguage] = useState<string>('');
+  const [activeTab, setActiveTab] = useState<'identify' | 'compare' | 'history'>('identify');
+  const [currentResultId, setCurrentResultId] = useState<string | null>(null);
 
-  const languages = ['English', 'Bengali', 'Hindi','Marathi','Spanish','French','German','Japanese','Mandarin','Tamil','Telugu'];
+  const { history, addToHistory, toggleFavorite, deleteItem } = useHistory();
+
+  const languages = ['English', 'Bengali', 'Hindi', 'Marathi', 'Spanish', 'French', 'German', 'Japanese', 'Mandarin', 'Tamil', 'Telugu'];
 
   const createPrompt = (category: string): string => {
     let languagePrompt = ''
-switch (selectedLanguage) {
-  case 'Bengali':
-    languagePrompt = 'বাঙালি ভাষায়'; 
-    break;
-  case 'Hindi':
-    languagePrompt = 'हिंदी में'; 
-    break;
-  case 'Spanish':
-    languagePrompt = 'en español'; 
-    break;
-  case 'French':
-    languagePrompt = 'en français'; 
-    break;
-  case 'German':
-    languagePrompt = 'auf Deutsch'; 
-    break;
-  case 'Japanese':
-    languagePrompt = '日本語で'; 
-    break;
-  case 'Tamil':
-    languagePrompt = 'தமிழில்'; 
-    break;
-  case 'Telugu':
-    languagePrompt = 'తెలుగులో'; 
-    break;
-  case 'Mandarin':
-    languagePrompt = '中文'; 
-    break;
-  case 'Marathi':
-    languagePrompt = 'मराठीत'; 
-    break;
-  default:
-    languagePrompt = 'in English'; 
-}
-
-    switch (category) {
-      case 'famous person':
-        return `Identify the famous person/fictional character in this image and provide the following information ${languagePrompt}:
-          1. Full Name
-          2. Profession
-          3. Date of Birth
-          4. Nationality
-          5. Notable Achievements
-          6. Brief Biography
-          7. Important Works
-          8. Awards or Honors
-          9. Link to know more
-          Don't give ** in the response and give the information as JSON format and the value should always be in string`
-      case 'animal':
-        return `Identify the animal/bird in this image and provide the following information ${languagePrompt}:
-          1. Common Name
-          2. Scientific Name
-          3. Classification (Mammal, Reptile, etc.)
-          4. Habitat
-          5. Diet
-          6. Lifespan
-          7. Conservation Status
-          8. Physical Characteristics
-          9. Behavioral Traits
-          10. Link to know more
-          Don't give ** in the response and give the information as JSON format and the value should always be in string`
-      case 'plant':
-        return `Identify the plant in this image and provide the following information ${languagePrompt}:
-          1. Common Name
-          2. Scientific Name
-          3. Plant Family
-          4. Native Region
-          5. Type (Tree, Shrub, Flower, etc.)
-          6. Leaf Characteristics
-          7. Flower Characteristics (if applicable)
-          8. Growing Conditions
-          9. Uses (Ornamental, Medicinal, Culinary, etc.)
-          10. Link to know more
-          Don't give ** in the response and give the information as JSON format and the value should always be in string`
-      case 'vehicle':
-        return `Identify the vehicle in this image and provide the following information ${languagePrompt}:
-          1. Company and Model Name
-          2. Type (Car, Truck, Motorcycle, etc.)
-          3. Year of Manufacture
-          4. Engine Type and Specifications
-          5. Fuel Type
-          6. Transmission Type
-          7. Features and Technology
-          8. Performance Data
-          9. Safety Features
-          10. Parent Company Official website
-          Don't give ** in the response and give the information as JSON format and the value should always be in string`
-      default:
-        return `Identify the object or entity in this image and provide the following information ${languagePrompt}:
-          1. Name
-          2. Category or Classification
-          3. Primary Use or Purpose
-          4. Origin or History
-          5. Composition or Materials
-          6. Notable Features
-          7. Cultural Significance (if any)
-          8. Link to know more
-          Don't give ** in the response and give the information as JSON format and the value should always be in string`
+    switch (selectedLanguage) {
+      case 'Bengali': languagePrompt = 'in Bengali'; break;
+      case 'Hindi': languagePrompt = 'in Hindi'; break;
+      case 'Spanish': languagePrompt = 'in Spanish'; break;
+      case 'French': languagePrompt = 'in French'; break;
+      case 'German': languagePrompt = 'in German'; break;
+      case 'Japanese': languagePrompt = 'in Japanese'; break;
+      case 'Tamil': languagePrompt = 'in Tamil'; break;
+      case 'Telugu': languagePrompt = 'in Telugu'; break;
+      case 'Mandarin': languagePrompt = 'in Mandarin'; break;
+      case 'Marathi': languagePrompt = 'in Marathi'; break;
+      default: languagePrompt = 'in English';
     }
+
+    return `Identify the main subject in this image (Category: ${category}). 
+    Provide the response strictly as a valid JSON object ${languagePrompt}.
+    The JSON structure must be:
+    {
+      "name": "Name of the identified subject",
+      "description": "A brief, engaging description of the subject (2-3 sentences).",
+      "details": {
+        "Key Label 1": "Value 1",
+        "Key Label 2": "Value 2"
+      },
+      "searchQuery": "A search query to find more information"
+    }
+    
+    Instructions for 'details':
+    - Provide 5-7 most relevant and interesting facts about the specific subject.
+    - Do NOT use generic fields like 'Date of Birth' or 'Scientific Name' unless they are highly relevant to this specific subject.
+    - For a famous person, include things like 'Known For', 'Best Work', 'Nationality', 'Awards'.
+    - For a vehicle, include 'Engine', 'Top Speed', 'Price', 'Features'.
+    - For an animal, include 'Habitat', 'Diet', 'Unique Trait'.
+    - For a plant, include 'Type', 'Origin', 'Care Level'.
+    - Make the keys human-readable (e.g., "Top Speed" instead of "top_speed").
+    - Ensure all values are strings.
+    - Do not include markdown formatting (like \`\`\`json) in the response, just the raw JSON string.
+    `;
   }
 
   const handleUpload = async (file: File, category: string) => {
     setLoading(true)
     setError(null)
-    setImageUrl(URL.createObjectURL(file))
-  
+    setIdentificationResult(null)
+    const url = URL.createObjectURL(file);
+    setImageUrl(url)
+
     try {
       const base64Image = await fileToBase64(file)
       const prompt = createPrompt(category.toLowerCase())
-  
-      const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
+
+      const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
       const result = await model.generateContent([
         prompt,
         {
@@ -328,35 +91,43 @@ switch (selectedLanguage) {
           }
         }
       ])
-  
+
       const response = await result.response
       const text = response.text()
-  
-      // Parse the response more robustly
-      const lines = text.split('\n').filter(line => line.trim() !== '')
-      let name = "unknown"
-      let description = ""
-      const details: IdentificationDetails = {}
-      let hyperlinkValue=""
-      let count=0;
-  
-      lines.forEach((line, index) => {
-        const [key, ...valueParts] = line.split(':')
-        const value = valueParts.join(':').trim()
-        
-        if (line.includes(':')) {
-            let mainkey=key.replace(/"/g, '').trim()
-            let mainvalue=value.replace(/"/g, '').trim()
-            if(mainkey==="Link to know more" || mainkey==="Parent Company Official website"){
-              hyperlinkValue = `<a href="${mainvalue}" target="_blank" rel="noopener noreferrer" style="color: blue; text-decoration: underline;">${mainvalue}</a>`
-            }
-            else details[mainkey] = mainvalue.substring(0,mainvalue.length-1)
-        }
-      })
-  
-      name = details[Object.keys(details)[0]]
 
-      setIdentificationResult({ name, description,hyperlinkValue, details })
+      const cleanText = text.replace(/```json/g, '').replace(/```/g, '').trim();
+
+      let parsedResult;
+      try {
+        parsedResult = JSON.parse(cleanText);
+      } catch (e) {
+        console.error("Failed to parse JSON:", e);
+        throw new Error("Failed to parse the AI response. Please try again.");
+      }
+
+      const { name, description, details, searchQuery } = parsedResult;
+
+      let hyperlinkValue = "";
+      if (searchQuery) {
+        const searchUrl = `https://www.google.com/search?q=${encodeURIComponent(searchQuery)}`;
+        hyperlinkValue = `<a href="${searchUrl}" target="_blank" rel="noopener noreferrer" style="color: #60a5fa; text-decoration: underline;">Click here to learn more</a>`;
+      }
+
+      const finalResult = { name, description, hyperlinkValue, details };
+      setIdentificationResult(finalResult);
+
+      // Add to history
+      const newId = Date.now().toString();
+      addToHistory({
+        id: newId,
+        timestamp: Date.now(),
+        imageUrl: url, // Note: This blob URL will expire on refresh. We should ideally store base64 for persistence, but for this session it works. 
+        // For true persistence across refresh, we need base64.
+        result: finalResult,
+        isFavorite: false
+      });
+      setCurrentResultId(newId);
+
     } catch (err) {
       console.error('Error identifying image:', err)
       setError(`An error occurred while identifying the image: ${(err as Error).message || 'Unknown error'}`);
@@ -374,31 +145,109 @@ switch (selectedLanguage) {
     })
   }
 
+  const handleHistorySelect = (item: any) => {
+    setIdentificationResult(item.result);
+    setImageUrl(item.imageUrl);
+    setCurrentResultId(item.id);
+    setActiveTab('identify');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
-    <div className="max-w-4xl mx-auto px-4">
+    <div className="max-w-6xl mx-auto px-4 py-8">
       <IdentifyAnimation />
-      <select
-          value={selectedLanguage}
-          onChange={(e) => setSelectedLanguage(e.target.value)}
-          className="w-full p-2 border rounded text-gray-800"
-        >
-        <option value="" className="text-gray-800">
-          Select a Language
-        </option>
-          {languages.map((language) => (
-            <option key={language} value={language} className="text-gray-800">
-              {language}
-            </option>
+
+      {/* Tab Navigation */}
+      <div className="flex justify-center mb-12">
+        <div className="glass p-1 rounded-xl flex space-x-2">
+          {['identify', 'compare', 'history'].map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab as any)}
+              className={`px-6 py-2 rounded-lg font-medium transition-all ${activeTab === tab
+                ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
+                : 'text-gray-400 hover:text-white hover:bg-white/5'
+                }`}
+            >
+              {tab.charAt(0).toUpperCase() + tab.slice(1)}
+            </button>
           ))}
-      </select>
-      <br/>
-      <br/>
-      <ImageUploader onUpload={handleUpload} />
-      {loading && <p className="text-center mt-4">Identifying image...</p>}
-      {error && <p className="text-red-500 text-center mt-4">{error}</p>}
-      <IdentificationResult result={identificationResult} imageUrl={imageUrl} loading={loading} />
-      {!imageUrl && <HowToUse />}
+        </div>
+      </div>
+
+      {activeTab === 'identify' && (
+        <div className="animate-fade-in">
+          <div className="max-w-md mx-auto mb-12">
+            <select
+              value={selectedLanguage}
+              onChange={(e) => setSelectedLanguage(e.target.value)}
+              className="w-full p-3 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:border-blue-500 transition-colors"
+            >
+              <option value="" className="bg-gray-900 text-gray-400">
+                Select a Language (Optional)
+              </option>
+              {languages.map((language) => (
+                <option key={language} value={language} className="bg-gray-900 text-white">
+                  {language}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <ImageUploader onUpload={handleUpload} />
+
+          {loading && (
+            <div className="flex flex-col items-center justify-center mt-8 space-y-4">
+              <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+              <p className="text-blue-400 animate-pulse">Identifying image...</p>
+            </div>
+          )}
+
+          {error && (
+            <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-4 rounded-lg text-center mt-8">
+              {error}
+            </div>
+          )}
+
+          <IdentificationResult
+            result={identificationResult}
+            imageUrl={imageUrl}
+            loading={loading}
+            isFavorite={currentResultId ? history.find(h => h.id === currentResultId)?.isFavorite : false}
+            onToggleFavorite={() => currentResultId && toggleFavorite(currentResultId)}
+          />
+
+          {identificationResult && imageUrl && (
+            <ChatSection
+              apiKey={API_KEY}
+              imageUrl={imageUrl}
+              initialDescription={identificationResult.description}
+            />
+          )}
+
+          {!imageUrl && !loading && <HowToUse />}
+        </div>
+      )}
+
+      {activeTab === 'compare' && (
+        <div className="animate-fade-in">
+          <CompareSection apiKey={API_KEY} />
+        </div>
+      )}
+
+      {activeTab === 'history' && (
+        <div className="animate-fade-in">
+          <h2 className="text-3xl font-bold text-white mb-6 text-center">My Discoveries</h2>
+          <HistoryList
+            history={history}
+            onSelect={handleHistorySelect}
+            onDelete={(id, e) => {
+              e.stopPropagation();
+              deleteItem(id);
+            }}
+          />
+        </div>
+      )}
     </div>
   )
 }
-

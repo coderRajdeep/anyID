@@ -22,19 +22,19 @@ export default function IdentifyAnimation() {
   }, []);
 
   return (
-      <h1 className="text-4xl font-bold text-center mx-auto">
-        <span className="text-blue-600">Identify </span>
-        <br/>
-        <motion.span
-          key={index}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          transition={{ duration: 0.5 }}
-          className="text-green-600"
-        >
-          {words[index]}
-        </motion.span>
-      </h1>
+    <h1 className="text-5xl md:text-7xl font-bold text-center mx-auto mb-12 leading-tight">
+      <span className="text-white">Identify </span>
+      <br className="md:hidden" />
+      <motion.span
+        key={index}
+        initial={{ opacity: 0, y: 20, filter: 'blur(10px)' }}
+        animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+        exit={{ opacity: 0, y: -20, filter: 'blur(10px)' }}
+        transition={{ duration: 0.5 }}
+        className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-blue-500"
+      >
+        {words[index]}
+      </motion.span>
+    </h1>
   );
 }

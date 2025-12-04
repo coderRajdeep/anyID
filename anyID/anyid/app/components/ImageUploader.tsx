@@ -6,7 +6,7 @@ interface ImageUploaderProps {
   onUpload: (file: File, category: string) => void;
 }
 
-const categories = ['Famous Person', 'Animal', 'Plant','Vehicle', 'Other'];
+const categories = ['Famous Person', 'Animal', 'Plant', 'Vehicle', 'Other'];
 
 const ImageUploader: React.FC<ImageUploaderProps> = ({ onUpload }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('');
@@ -24,7 +24,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onUpload }) => {
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
-    
+
   };
 
   const handleDrop = (e: DragEvent<HTMLLabelElement>) => {
@@ -92,28 +92,32 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onUpload }) => {
   };
 
   return (
-    <div className="space-y-4 mb-8 flex flex-col items-center">
-      <select
-        value={selectedCategory}
-        onChange={(e) => setSelectedCategory(e.target.value)}
-        className="w-full p-2 border rounded text-gray-800"
-      >
-        <option value="" className="text-gray-800">
-          Select a category
-        </option>
-        {categories.map((category) => (
-          <option key={category} value={category} className="text-gray-800">
-            {category}
+    <div className="space-y-6 mb-8 flex flex-col items-center w-full max-w-2xl mx-auto">
+      <div className="w-full">
+        <label className="block text-gray-300 mb-2 font-medium">Select Category</label>
+        <select
+          value={selectedCategory}
+          onChange={(e) => setSelectedCategory(e.target.value)}
+          className="w-full p-3 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:border-blue-500 transition-colors"
+        >
+          <option value="" className="bg-gray-900 text-gray-400">
+            Select a category
           </option>
-        ))}
-      </select>
-      <div className="flex space-x-4 mb-4">
+          {categories.map((category) => (
+            <option key={category} value={category} className="bg-gray-900 text-white">
+              {category}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div className="flex flex-col sm:flex-row gap-4 w-full justify-center">
         <label
-          className="bg-white text-green-800 font-bold py-2 px-4 rounded cursor-pointer transition-colors hover:bg-green-300"
+          className={`flex-1 flex items-center justify-center bg-gradient-to-r from-blue-600 to-blue-500 text-white font-bold py-3 px-6 rounded-lg cursor-pointer transition-all hover:scale-105 hover:shadow-lg hover:shadow-blue-500/20 ${(!selectedCategory || showCamera) ? 'opacity-50 cursor-not-allowed' : ''}`}
           onDragOver={handleDragOver}
           onDrop={handleDrop}
         >
-          Upload Image
+          <span className="mr-2">📁</span> Upload Image
           <input
             ref={fileInputRef}
             type="file"
@@ -125,18 +129,19 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onUpload }) => {
         </label>
         <button
           onClick={openCamera}
-          className="bg-white text-green-800 font-bold py-2 px-4 rounded cursor-pointer transition-colors hover:bg-green-300"
+          className={`flex-1 flex items-center justify-center bg-gradient-to-r from-purple-600 to-purple-500 text-white font-bold py-3 px-6 rounded-lg cursor-pointer transition-all hover:scale-105 hover:shadow-lg hover:shadow-purple-500/20 ${loading || !selectedCategory ? 'opacity-50 cursor-not-allowed' : ''}`}
           disabled={loading || !selectedCategory}
         >
-          Take Photo
+          <span className="mr-2">📷</span> Take Photo
         </button>
       </div>
+
       {showCamera && (
-        <div className="mt-4">
-          <video ref={videoRef} autoPlay playsInline className="mb-2 rounded-lg" />
+        <div className="mt-4 w-full glass p-4 rounded-xl">
+          <video ref={videoRef} autoPlay playsInline className="mb-4 rounded-lg w-full" />
           <button
             onClick={takePhoto}
-            className="bg-green-500 text-white font-bold py-2 px-4 rounded cursor-pointer transition-colors hover:bg-green-600"
+            className="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg transition-colors shadow-lg shadow-green-500/20"
           >
             Capture Photo
           </button>
