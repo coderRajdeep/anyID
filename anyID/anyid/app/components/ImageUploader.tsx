@@ -4,12 +4,14 @@ import { useState, useRef, ChangeEvent, DragEvent } from 'react';
 
 interface ImageUploaderProps {
   onUpload: (file: File, category: string) => void;
+  onStartQuiz: (category: string) => void;
 }
 
 const categories = ['Famous Person', 'Animal', 'Plant', 'Vehicle', 'Other'];
 
-const ImageUploader: React.FC<ImageUploaderProps> = ({ onUpload }) => {
+const ImageUploader: React.FC<ImageUploaderProps> = ({ onUpload, onStartQuiz }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('');
+  const [customCategory, setCustomCategory] = useState<string>('');
   const [showCamera, setShowCamera] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -17,9 +19,11 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onUpload }) => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
+  const finalCategory = selectedCategory === 'Other' ? (customCategory.trim() || 'Other') : selectedCategory;
+
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file && selectedCategory) {
+    if (file && finalCategory) {
       setPreview(file);
     }
 
@@ -31,7 +35,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onUpload }) => {
   const handleDrop = (e: DragEvent<HTMLLabelElement>) => {
     e.preventDefault();
     const file = e.dataTransfer.files[0];
-    if (file && selectedCategory) {
+    if (file && finalCategory) {
       setPreview(file);
     }
   };
@@ -48,10 +52,10 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onUpload }) => {
   };
 
   const handleConfirmUpload = () => {
-    if (selectedFile && selectedCategory) {
+    if (selectedFile && finalCategory) {
       setLoading(true);
       try {
-        onUpload(selectedFile, selectedCategory);
+        onUpload(selectedFile, finalCategory);
         setPreviewUrl(null);
         setSelectedFile(null);
       } catch (error) {
@@ -113,23 +117,50 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onUpload }) => {
 
   return (
     <div className="space-y-6 mb-8 flex flex-col items-center w-full max-w-2xl mx-auto">
-      <div className="w-full">
-        <label className="block text-gray-300 mb-2 font-medium">Select Category</label>
-        <select
-          value={selectedCategory}
-          onChange={(e) => setSelectedCategory(e.target.value)}
-          className="w-full p-3 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:border-blue-500 transition-colors"
-          disabled={!!previewUrl}
-        >
-          <option value="" className="bg-gray-900 text-gray-400">
-            Select a category
-          </option>
-          {categories.map((category) => (
-            <option key={category} value={category} className="bg-gray-900 text-white">
-              {category}
-            </option>
-          ))}
-        </select>
+      <div className="w-full space-y-4">
+        <div>
+          <label className="block text-gray-300 mb-2 font-medium">Select Category</label>
+          <div className="flex gap-2">
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="flex-1 p-3 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:border-blue-500 transition-colors"
+              disabled={!!previewUrl}
+            >
+              <option value="" className="bg-gray-900 text-gray-400">
+                Select a category
+              </option>
+              {categories.map((category) => (
+                <option key={category} value={category} className="bg-gray-900 text-white">
+                  {category}
+                </option>
+              ))}
+            </select>
+
+            {finalCategory && !previewUrl && (
+              <button
+                onClick={() => onStartQuiz(finalCategory)}
+                className="bg-gradient-to-r from-pink-500 to-purple-600 text-white font-bold px-4 py-2 rounded-lg hover:shadow-lg hover:shadow-purple-500/30 transition-all flex items-center whitespace-nowrap animate-fade-in"
+              >
+                🎮 Quiz Game
+              </button>
+            )}
+          </div>
+        </div>
+
+        {selectedCategory === 'Other' && (
+          <div className="animate-fade-in">
+            <label className="block text-gray-300 mb-2 font-medium">Specify Category</label>
+            <input
+              type="text"
+              value={customCategory}
+              onChange={(e) => setCustomCategory(e.target.value)}
+              placeholder="Enter category name..."
+              className="w-full p-3 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:border-purple-500 transition-colors"
+              disabled={!!previewUrl}
+            />
+          </div>
+        )}
       </div>
 
       {previewUrl ? (
@@ -161,7 +192,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onUpload }) => {
         <>
           <div className="flex flex-col sm:flex-row gap-4 w-full justify-center">
             <label
-              className={`flex-1 flex items-center justify-center bg-gradient-to-r from-blue-600 to-blue-500 text-white font-bold py-3 px-6 rounded-lg cursor-pointer transition-all hover:scale-105 hover:shadow-lg hover:shadow-blue-500/20 ${(!selectedCategory || showCamera) ? 'opacity-50 cursor-not-allowed' : ''}`}
+              className={`flex-1 flex items-center justify-center bg-gradient-to-r from-blue-600 to-blue-500 text-white font-bold py-3 px-6 rounded-lg cursor-pointer transition-all hover:scale-105 hover:shadow-lg hover:shadow-blue-500/20 ${(!finalCategory || showCamera) ? 'opacity-50 cursor-not-allowed' : ''}`}
               onDragOver={handleDragOver}
               onDrop={handleDrop}
             >
@@ -172,13 +203,13 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onUpload }) => {
                 className="hidden"
                 onChange={handleFileChange}
                 accept="image/*"
-                disabled={!selectedCategory || showCamera}
+                disabled={!finalCategory || showCamera}
               />
             </label>
             <button
               onClick={openCamera}
-              className={`flex-1 flex items-center justify-center bg-gradient-to-r from-purple-600 to-purple-500 text-white font-bold py-3 px-6 rounded-lg cursor-pointer transition-all hover:scale-105 hover:shadow-lg hover:shadow-purple-500/20 ${loading || !selectedCategory ? 'opacity-50 cursor-not-allowed' : ''}`}
-              disabled={loading || !selectedCategory}
+              className={`flex-1 flex items-center justify-center bg-gradient-to-r from-purple-600 to-purple-500 text-white font-bold py-3 px-6 rounded-lg cursor-pointer transition-all hover:scale-105 hover:shadow-lg hover:shadow-purple-500/20 ${loading || !finalCategory ? 'opacity-50 cursor-not-allowed' : ''}`}
+              disabled={loading || !finalCategory}
             >
               <span className="mr-2">📷</span> Take Photo
             </button>
