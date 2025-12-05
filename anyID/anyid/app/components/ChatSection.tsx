@@ -1,9 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
-import { GoogleGenerativeAI, ChatSession } from '@google/generative-ai';
 import ReactMarkdown from 'react-markdown';
+import { API_BASE_URL } from '../config';
 
 interface ChatSectionProps {
-    apiKey: string;
     imageUrl: string;
     initialDescription: string;
 }
@@ -13,47 +12,11 @@ interface Message {
     text: string;
 }
 
-const ChatSection: React.FC<ChatSectionProps> = ({ apiKey, imageUrl, initialDescription }) => {
+const ChatSection: React.FC<ChatSectionProps> = ({ imageUrl, initialDescription }) => {
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState('');
     const [loading, setLoading] = useState(false);
-    const [chatSession, setChatSession] = useState<ChatSession | null>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
-
-    useEffect(() => {
-        if (apiKey && imageUrl) {
-            const initChat = async () => {
-                const genAI = new GoogleGenerativeAI(apiKey);
-                const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
-
-                // We can't easily start a chat with an image in the history in the current SDK version 
-                // in a way that persists the image context for all future turns without sending it again.
-                // However, for simplicity, we will start a chat and send the image with the first prompt 
-                // or just rely on the text context if the user asks about the "person".
-                // A better approach for "Ask about this image" is to send the image with every request 
-                // or use the multimodal chat capabilities if supported.
-
-                // Strategy: We will use the initial description as context. 
-                // If the user asks specific visual questions, we might need to resend the image.
-                // For now, let's try to start a chat with the system instruction or initial history.
-
-                const session = model.startChat({
-                    history: [
-                        {
-                            role: 'user',
-                            parts: [{ text: `I have identified this image. Here is the description: ${initialDescription}. I will ask you questions about it.` }],
-                        },
-                        {
-                            role: 'model',
-                            parts: [{ text: 'Understood. I am ready to answer your questions about the identified person/object.' }],
-                        },
-                    ],
-                });
-                setChatSession(session);
-            };
-            initChat();
-        }
-    }, [apiKey, imageUrl, initialDescription]);
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -62,7 +25,7 @@ const ChatSection: React.FC<ChatSectionProps> = ({ apiKey, imageUrl, initialDesc
     useEffect(scrollToBottom, [messages]);
 
     const handleSend = async () => {
-        if (!input.trim() || !chatSession) return;
+        if (!input.trim()) return;
 
         const userMessage = input.trim();
         setInput('');
@@ -70,12 +33,23 @@ const ChatSection: React.FC<ChatSectionProps> = ({ apiKey, imageUrl, initialDesc
         setLoading(true);
 
         try {
-            // We are sending just text here. If we needed to send the image again, we would use generateContent with image.
-            // But since we seeded the chat with the description, it should work for general questions.
-            const result = await chatSession.sendMessage(userMessage);
-            const response = result.response.text();
+            const response = await fetch(`${API_BASE_URL}/api/images/chat`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    message: userMessage,
+                    initialDescription: initialDescription
+                })
+            });
 
-            setMessages((prev) => [...prev, { role: 'model', text: response }]);
+            if (!response.ok) {
+                throw new Error('Backend failed to respond');
+            }
+
+            const text = await response.text();
+            setMessages((prev) => [...prev, { role: 'model', text: text }]);
         } catch (error) {
             console.error('Chat error:', error);
             setMessages((prev) => [...prev, { role: 'model', text: 'Sorry, I encountered an error. Please try again.' }]);

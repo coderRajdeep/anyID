@@ -1,8 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { GoogleGenerativeAI } from '@google/generative-ai'
 import ImageUploader from './components/ImageUploader'
+import { API_BASE_URL } from './config'
 import IdentificationResult from './components/IdentificationResult'
 import IdentifyAnimation from './components/IdentifyAnimation'
 import HowToUse from './components/Howtouse'
@@ -12,8 +12,7 @@ import CompareSection from './components/CompareSection'
 import { useHistory } from './hooks/useHistory'
 import { IdentificationResultType } from './types'
 
-const API_KEY = process.env.NEXT_PUBLIC_GOOGLE_GENERATIVE_AI_KEY as string;
-const genAI = new GoogleGenerativeAI(API_KEY)
+
 
 export default function Home() {
   const [identificationResult, setIdentificationResult] = useState<IdentificationResultType | null>(null)
@@ -28,47 +27,7 @@ export default function Home() {
 
   const languages = ['English', 'Bengali', 'Hindi', 'Marathi', 'Spanish', 'French', 'German', 'Japanese', 'Mandarin', 'Tamil', 'Telugu'];
 
-  const createPrompt = (category: string): string => {
-    let languagePrompt = ''
-    switch (selectedLanguage) {
-      case 'Bengali': languagePrompt = 'in Bengali'; break;
-      case 'Hindi': languagePrompt = 'in Hindi'; break;
-      case 'Spanish': languagePrompt = 'in Spanish'; break;
-      case 'French': languagePrompt = 'in French'; break;
-      case 'German': languagePrompt = 'in German'; break;
-      case 'Japanese': languagePrompt = 'in Japanese'; break;
-      case 'Tamil': languagePrompt = 'in Tamil'; break;
-      case 'Telugu': languagePrompt = 'in Telugu'; break;
-      case 'Mandarin': languagePrompt = 'in Mandarin'; break;
-      case 'Marathi': languagePrompt = 'in Marathi'; break;
-      default: languagePrompt = 'in English';
-    }
 
-    return `Identify the main subject in this image (Category: ${category}). 
-    Provide the response strictly as a valid JSON object ${languagePrompt}.
-    The JSON structure must be:
-    {
-      "name": "Name of the identified subject",
-      "description": "A brief, engaging description of the subject (2-3 sentences).",
-      "details": {
-        "Key Label 1": "Value 1",
-        "Key Label 2": "Value 2"
-      },
-      "searchQuery": "A search query to find more information"
-    }
-    
-    Instructions for 'details':
-    - Provide 5-7 most relevant and interesting facts about the specific subject.
-    - Do NOT use generic fields like 'Date of Birth' or 'Scientific Name' unless they are highly relevant to this specific subject.
-    - For a famous person, include things like 'Known For', 'Best Work', 'Nationality', 'Awards'.
-    - For a vehicle, include 'Engine', 'Top Speed', 'Price', 'Features'.
-    - For an animal, include 'Habitat', 'Diet', 'Unique Trait'.
-    - For a plant, include 'Type', 'Origin', 'Care Level'.
-    - Make the keys human-readable (e.g., "Top Speed" instead of "top_speed").
-    - Ensure all values are strings.
-    - Do not include markdown formatting (like \`\`\`json) in the response, just the raw JSON string.
-    `;
-  }
 
   const handleUpload = async (file: File, category: string) => {
     setLoading(true)
@@ -79,31 +38,25 @@ export default function Home() {
 
     try {
       const base64Image = await fileToBase64(file)
-      const prompt = createPrompt(category.toLowerCase())
 
-      const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
-      const result = await model.generateContent([
-        prompt,
-        {
-          inlineData: {
-            mimeType: file.type,
-            data: base64Image.split(',')[1]
-          }
-        }
-      ])
+      // Call Java Backend
+      const response = await fetch(`${API_BASE_URL}/api/images/identify`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          imageBase64: base64Image,
+          category: category,
+          language: selectedLanguage
+        })
+      });
 
-      const response = await result.response
-      const text = response.text()
-
-      const cleanText = text.replace(/```json/g, '').replace(/```/g, '').trim();
-
-      let parsedResult;
-      try {
-        parsedResult = JSON.parse(cleanText);
-      } catch (e) {
-        console.error("Failed to parse JSON:", e);
-        throw new Error("Failed to parse the AI response. Please try again.");
+      if (!response.ok) {
+        throw new Error('Backend failed to respond');
       }
+
+      const parsedResult = await response.json();
 
       const { name, description, details, searchQuery } = parsedResult;
 
@@ -121,8 +74,7 @@ export default function Home() {
       addToHistory({
         id: newId,
         timestamp: Date.now(),
-        imageUrl: url, // Note: This blob URL will expire on refresh. We should ideally store base64 for persistence, but for this session it works. 
-        // For true persistence across refresh, we need base64.
+        imageUrl: url,
         result: finalResult,
         isFavorite: false
       });
@@ -219,7 +171,6 @@ export default function Home() {
 
           {identificationResult && imageUrl && (
             <ChatSection
-              apiKey={API_KEY}
               imageUrl={imageUrl}
               initialDescription={identificationResult.description}
             />
@@ -231,7 +182,7 @@ export default function Home() {
 
       {activeTab === 'compare' && (
         <div className="animate-fade-in">
-          <CompareSection apiKey={API_KEY} />
+          <CompareSection />
         </div>
       )}
 

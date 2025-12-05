@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import ImageUploader from './ImageUploader';
-import { GoogleGenerativeAI } from '@google/generative-ai';
 import Image from 'next/image';
+import { API_BASE_URL } from '../config';
 
 interface CompareSectionProps {
-    apiKey: string;
 }
 
 interface ComparisonPoint {
@@ -18,7 +17,7 @@ interface ComparisonResult {
     conclusion: string;
 }
 
-const CompareSection: React.FC<CompareSectionProps> = ({ apiKey }) => {
+const CompareSection: React.FC<CompareSectionProps> = () => {
     const [image1, setImage1] = useState<File | null>(null);
     const [image2, setImage2] = useState<File | null>(null);
     const [image1Url, setImage1Url] = useState<string | null>(null);
@@ -53,55 +52,26 @@ const CompareSection: React.FC<CompareSectionProps> = ({ apiKey }) => {
         setResult(null);
 
         try {
-            const genAI = new GoogleGenerativeAI(apiKey);
-            // Using gemini-1.5-flash for reliable JSON generation
-            const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
             const base64Image1 = await fileToBase64(image1);
             const base64Image2 = await fileToBase64(image2);
 
-            const prompt = `Compare these two images in detail.
-            Provide the response strictly as a valid JSON object.
-            The JSON structure must be:
-            {
-              "comparison": [
-                { "feature": "Subject/Identity", "image1": "Description for Image 1", "image2": "Description for Image 2" },
-                { "feature": "Category", "image1": "...", "image2": "..." },
-                { "feature": "Visual Style", "image1": "...", "image2": "..." },
-                { "feature": "Color Palette", "image1": "...", "image2": "..." },
-                { "feature": "Key Differences", "image1": "...", "image2": "..." }
-              ],
-              "conclusion": "A brief paragraph summarizing the comparison."
-            }
-            Do not include markdown formatting (like \`\`\`json) in the response, just the raw JSON string.
-            `;
-
-            const result = await model.generateContent([
-                prompt,
-                {
-                    inlineData: {
-                        mimeType: image1.type,
-                        data: base64Image1.split(',')[1]
-                    }
+            const response = await fetch(`${API_BASE_URL}/api/images/compare`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
                 },
-                {
-                    inlineData: {
-                        mimeType: image2.type,
-                        data: base64Image2.split(',')[1]
-                    }
-                }
-            ]);
+                body: JSON.stringify({
+                    image1Base64: base64Image1,
+                    image2Base64: base64Image2
+                })
+            });
 
-            const response = await result.response;
-            const text = response.text();
-            const cleanText = text.replace(/```json/g, '').replace(/```/g, '').trim();
-
-            try {
-                const parsedResult = JSON.parse(cleanText);
-                setResult(parsedResult);
-            } catch (e) {
-                console.error("JSON Parse Error", e);
-                setError("Failed to process the comparison result. Please try again.");
+            if (!response.ok) {
+                throw new Error('Backend failed to respond');
             }
+
+            const parsedResult = await response.json();
+            setResult(parsedResult);
 
         } catch (err) {
             console.error("Comparison error:", err);
