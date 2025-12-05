@@ -12,26 +12,27 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onUpload }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [showCamera, setShowCamera] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file && selectedCategory) {
-      handleImageUpload(file);
+      setPreview(file);
     }
 
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
-
   };
 
   const handleDrop = (e: DragEvent<HTMLLabelElement>) => {
     e.preventDefault();
     const file = e.dataTransfer.files[0];
     if (file && selectedCategory) {
-      onUpload(file, selectedCategory);
+      setPreview(file);
     }
   };
 
@@ -39,15 +40,34 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onUpload }) => {
     e.preventDefault();
   };
 
-  const handleImageUpload = async (file: File) => {
-    setLoading(true);
-    try {
-      onUpload(file, selectedCategory);
-    } catch (error) {
-      console.error('Error uploading image:', error);
-    } finally {
-      setLoading(false);
+  const setPreview = (file: File) => {
+    const url = URL.createObjectURL(file);
+    setPreviewUrl(url);
+    setSelectedFile(file);
+    setShowCamera(false);
+  };
+
+  const handleConfirmUpload = () => {
+    if (selectedFile && selectedCategory) {
+      setLoading(true);
+      try {
+        onUpload(selectedFile, selectedCategory);
+        setPreviewUrl(null);
+        setSelectedFile(null);
+      } catch (error) {
+        console.error('Error uploading image:', error);
+      } finally {
+        setLoading(false);
+      }
     }
+  };
+
+  const handleCancelUpload = () => {
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+    }
+    setPreviewUrl(null);
+    setSelectedFile(null);
   };
 
   const openCamera = async () => {
@@ -80,7 +100,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onUpload }) => {
           (blob) => {
             if (blob) {
               const file = new File([blob], 'photo.jpg', { type: 'image/jpeg' });
-              handleImageUpload(file);
+              setPreview(file);
             }
           },
           'image/jpeg',
@@ -99,6 +119,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onUpload }) => {
           value={selectedCategory}
           onChange={(e) => setSelectedCategory(e.target.value)}
           className="w-full p-3 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:border-blue-500 transition-colors"
+          disabled={!!previewUrl}
         >
           <option value="" className="bg-gray-900 text-gray-400">
             Select a category
@@ -111,41 +132,70 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onUpload }) => {
         </select>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-4 w-full justify-center">
-        <label
-          className={`flex-1 flex items-center justify-center bg-gradient-to-r from-blue-600 to-blue-500 text-white font-bold py-3 px-6 rounded-lg cursor-pointer transition-all hover:scale-105 hover:shadow-lg hover:shadow-blue-500/20 ${(!selectedCategory || showCamera) ? 'opacity-50 cursor-not-allowed' : ''}`}
-          onDragOver={handleDragOver}
-          onDrop={handleDrop}
-        >
-          <span className="mr-2">📁</span> Upload Image
-          <input
-            ref={fileInputRef}
-            type="file"
-            className="hidden"
-            onChange={handleFileChange}
-            accept="image/*"
-            disabled={!selectedCategory || showCamera}
-          />
-        </label>
-        <button
-          onClick={openCamera}
-          className={`flex-1 flex items-center justify-center bg-gradient-to-r from-purple-600 to-purple-500 text-white font-bold py-3 px-6 rounded-lg cursor-pointer transition-all hover:scale-105 hover:shadow-lg hover:shadow-purple-500/20 ${loading || !selectedCategory ? 'opacity-50 cursor-not-allowed' : ''}`}
-          disabled={loading || !selectedCategory}
-        >
-          <span className="mr-2">📷</span> Take Photo
-        </button>
-      </div>
-
-      {showCamera && (
-        <div className="mt-4 w-full glass p-4 rounded-xl">
-          <video ref={videoRef} autoPlay playsInline className="mb-4 rounded-lg w-full" />
-          <button
-            onClick={takePhoto}
-            className="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg transition-colors shadow-lg shadow-green-500/20"
-          >
-            Capture Photo
-          </button>
+      {previewUrl ? (
+        <div className="w-full max-w-md mx-auto glass p-4 rounded-xl animate-fade-in">
+          <div className="relative aspect-video w-full mb-4 rounded-lg overflow-hidden bg-black/50">
+            <img
+              src={previewUrl}
+              alt="Preview"
+              className="w-full h-full object-contain"
+            />
+          </div>
+          <p className="text-center text-white mb-4 font-medium">Do you want to upload this image?</p>
+          <div className="flex gap-4 justify-center">
+            <button
+              onClick={handleCancelUpload}
+              className="px-6 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-200 border border-red-500/50 rounded-lg transition-colors"
+            >
+              No, Cancel
+            </button>
+            <button
+              onClick={handleConfirmUpload}
+              className="px-6 py-2 bg-green-500 hover:bg-green-600 text-white font-bold rounded-lg transition-colors shadow-lg shadow-green-500/20"
+            >
+              Yes, Identify
+            </button>
+          </div>
         </div>
+      ) : (
+        <>
+          <div className="flex flex-col sm:flex-row gap-4 w-full justify-center">
+            <label
+              className={`flex-1 flex items-center justify-center bg-gradient-to-r from-blue-600 to-blue-500 text-white font-bold py-3 px-6 rounded-lg cursor-pointer transition-all hover:scale-105 hover:shadow-lg hover:shadow-blue-500/20 ${(!selectedCategory || showCamera) ? 'opacity-50 cursor-not-allowed' : ''}`}
+              onDragOver={handleDragOver}
+              onDrop={handleDrop}
+            >
+              <span className="mr-2">📁</span> Upload Image
+              <input
+                ref={fileInputRef}
+                type="file"
+                className="hidden"
+                onChange={handleFileChange}
+                accept="image/*"
+                disabled={!selectedCategory || showCamera}
+              />
+            </label>
+            <button
+              onClick={openCamera}
+              className={`flex-1 flex items-center justify-center bg-gradient-to-r from-purple-600 to-purple-500 text-white font-bold py-3 px-6 rounded-lg cursor-pointer transition-all hover:scale-105 hover:shadow-lg hover:shadow-purple-500/20 ${loading || !selectedCategory ? 'opacity-50 cursor-not-allowed' : ''}`}
+              disabled={loading || !selectedCategory}
+            >
+              <span className="mr-2">📷</span> Take Photo
+            </button>
+          </div>
+
+          {showCamera && (
+            <div className="mt-4 w-full glass p-4 rounded-xl">
+              <video ref={videoRef} autoPlay playsInline className="mb-4 rounded-lg w-full" />
+              <button
+                onClick={takePhoto}
+                className="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg transition-colors shadow-lg shadow-green-500/20"
+              >
+                Capture Photo
+              </button>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

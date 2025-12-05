@@ -106,7 +106,7 @@ const ChatSection: React.FC<ChatSectionProps> = ({ imageUrl, initialDescription 
                 <div ref={messagesEndRef} />
             </div>
 
-            <div className="p-4 bg-white/5 border-t border-white/10">
+            <div className="p-3 sm:p-4 bg-white/5 border-t border-white/10">
                 <div className="flex gap-2">
                     <input
                         type="text"
@@ -114,13 +114,13 @@ const ChatSection: React.FC<ChatSectionProps> = ({ imageUrl, initialDescription 
                         onChange={(e) => setInput(e.target.value)}
                         onKeyDown={handleKeyDown}
                         placeholder="Type your question..."
-                        className="flex-1 bg-black/20 border border-white/10 rounded-lg px-4 py-2 text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 transition-colors"
+                        className="flex-1 min-w-0 bg-black/20 border border-white/10 rounded-lg px-3 sm:px-4 py-2 text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 transition-colors"
                         disabled={loading}
                     />
                     <button
                         onClick={handleSend}
                         disabled={loading || !input.trim()}
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 sm:px-6 py-2 rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
                     >
                         Send
                     </button>
