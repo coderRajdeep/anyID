@@ -9,6 +9,7 @@ import HowToUse from './components/Howtouse'
 import ChatSection from './components/ChatSection'
 import HistoryList from './components/HistoryList'
 import CompareSection from './components/CompareSection'
+import QuizGame from './components/QuizGame'
 import { useHistory } from './hooks/useHistory'
 import { IdentificationResultType } from './types'
 
@@ -22,6 +23,7 @@ export default function Home() {
   const [selectedLanguage, setSelectedLanguage] = useState<string>('');
   const [activeTab, setActiveTab] = useState<'identify' | 'compare' | 'history'>('identify');
   const [currentResultId, setCurrentResultId] = useState<string | null>(null);
+  const [quizCategory, setQuizCategory] = useState<string | null>(null);
 
   const { history, addToHistory, toggleFavorite, deleteItem } = useHistory();
 
@@ -105,6 +107,22 @@ export default function Home() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const handleStartQuiz = (category: string) => {
+    setQuizCategory(category);
+  };
+
+  const handleCloseQuiz = () => {
+    setQuizCategory(null);
+  };
+
+  if (quizCategory) {
+    return (
+      <div className="max-w-6xl mx-auto px-4 py-8">
+        <QuizGame category={quizCategory} language={selectedLanguage} onClose={handleCloseQuiz} />
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
       <IdentifyAnimation />
@@ -146,7 +164,7 @@ export default function Home() {
             </select>
           </div>
 
-          <ImageUploader onUpload={handleUpload} />
+          <ImageUploader onUpload={handleUpload} onStartQuiz={handleStartQuiz} />
 
           {loading && (
             <div className="flex flex-col items-center justify-center mt-8 space-y-4">

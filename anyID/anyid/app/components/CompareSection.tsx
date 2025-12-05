@@ -99,7 +99,7 @@ const CompareSection: React.FC<CompareSectionProps> = () => {
                         )}
                     </div>
                     <div className="transform scale-90 origin-top w-full">
-                        <ImageUploader onUpload={handleUpload1} />
+                        <ImageUploader onUpload={handleUpload1} onStartQuiz={() => { }} />
                     </div>
                 </div>
                 <div className="glass p-4 rounded-xl flex flex-col items-center">
@@ -112,7 +112,7 @@ const CompareSection: React.FC<CompareSectionProps> = () => {
                         )}
                     </div>
                     <div className="transform scale-90 origin-top w-full">
-                        <ImageUploader onUpload={handleUpload2} />
+                        <ImageUploader onUpload={handleUpload2} onStartQuiz={() => { }} />
                     </div>
                 </div>
             </div>

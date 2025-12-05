@@ -178,4 +178,51 @@ public class GeminiService {
                 "} " +
                 "Do not include markdown formatting.";
     }
+
+    public String generateQuiz(String category, String language, String quizType) {
+        String prompt = createQuizPrompt(category, language, quizType);
+        return callGeminiApiTextOnly(prompt);
+    }
+
+    private String createQuizPrompt(String category, String language, String quizType) {
+        String languagePrompt = (language == null || language.isEmpty()) ? "in English" : "in " + language;
+        boolean isImageMode = "image".equalsIgnoreCase(quizType);
+
+        if (isImageMode) {
+            return "Generate a visual identification quiz with 5 multiple-choice questions about '" + category + "' "
+                    + languagePrompt + ". " +
+                    "Each question should present a specific instance of " + category + " for the user to identify. " +
+                    "Provide the response strictly as a valid JSON array of objects. " +
+                    "The JSON structure must be: " +
+                    "[ " +
+                    "  { " +
+                    "    \"question\": \"Identify this " + category + " from the image (" + languagePrompt + ")\", " +
+                    "    \"options\": [\"Option A\", \"Option B\", \"Option C\", \"Option D\"], " +
+                    "    \"correctAnswer\": \"The correct option string\", " +
+                    "    \"explanation\": \"Brief info about the subject (" + languagePrompt + ")\", " +
+                    "    \"imagePrompt\": \"A detailed visual description of the specific subject (e.g. 'A close up photo of a Lion') that will be used to generate the image. Always keep this prompt in English.\" "
+                    +
+                    "  } " +
+                    "] " +
+                    "Do not include markdown formatting.";
+        } else {
+            // Text Mode
+            return "Generate a text-based trivia quiz with 5 multiple-choice questions about '" + category + "' "
+                    + languagePrompt + ". " +
+                    "Each question should test knowledge about facts, history, or characteristics of " + category + ". "
+                    +
+                    "Provide the response strictly as a valid JSON array of objects. " +
+                    "The JSON structure must be: " +
+                    "[ " +
+                    "  { " +
+                    "    \"question\": \"Question text here (" + languagePrompt + ")\", " +
+                    "    \"options\": [\"Option A\", \"Option B\", \"Option C\", \"Option D\"], " +
+                    "    \"correctAnswer\": \"The correct option string\", " +
+                    "    \"explanation\": \"Brief explanation (" + languagePrompt + ")\", " +
+                    "    \"imagePrompt\": \"\" " + // Empty for text mode
+                    "  } " +
+                    "] " +
+                    "Do not include markdown formatting.";
+        }
+    }
 }

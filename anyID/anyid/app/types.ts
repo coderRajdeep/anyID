@@ -8,3 +8,12 @@ export interface IdentificationResultType {
     hyperlinkValue: string;
     details: IdentificationDetails;
 }
+
+export interface QuizQuestion {
+    question: string;
+    options: string[];
+    correctAnswer: string;
+    explanation: string;
+    imagePrompt: string;
+}
+
