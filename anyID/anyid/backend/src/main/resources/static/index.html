@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>anyID Backend API</title>
+    <style>
+        :root {
+            --bg-color: #0a0a14;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --text-color: #ffffff;
+            --accent-color: #00ff9d;
+            --secondary-color: #7b1fa2;
+            --border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            background-image:
+                radial-gradient(circle at 10% 20%, rgba(123, 31, 162, 0.2) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(0, 255, 157, 0.15) 0%, transparent 40%);
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+            padding: 40px 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 60px;
+            animation: fadeIn 1s ease-out;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, var(--accent-color), #00d2ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #a0a0a0;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        h2 {
+            color: var(--accent-color);
+            margin-top: 0;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .endpoint {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            font-family: 'Consolas', 'Monaco', monospace;
+        }
+
+        .method {
+            background: var(--secondary-color);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            margin-right: 15px;
+            font-weight: bold;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .url {
+            color: #e0e0e0;
+            font-size: 1.1rem;
+            transition: color 0.2s;
+        }
+
+        .url:hover {
+            color: var(--accent-color);
+            text-decoration: underline;
+        }
+
+        .description {
+            color: #b0b0b0;
+            margin-left: 90px;
+            margin-bottom: 25px;
+            font-size: 0.95rem;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            background: rgba(0, 255, 157, 0.1);
+            border: 1px solid var(--accent-color);
+            color: var(--accent-color);
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        footer {
+            margin-top: auto;
+            padding: 20px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>anyID Backend</h1>
+            <p class="subtitle">Powered by Spring Boot & Google Gemini AI</p>
+            <div style="margin-top: 20px;">
+                <span class="status-badge">● System Operational</span>
+            </div>
+        </header>
+
+        <div class="card">
+            <h2>🚀 API Endpoints</h2>
+
+            <div class="endpoint">
+                <span class="method">POST</span>
+                <a href="/identify.html" style="text-decoration: none;"><span
+                        class="url">/api/images/identify</span></a>
+            </div>
+            <p class="description">
+                Analyzes an uploaded image to identify objects, plants, animals, or famous people. Returns detailed
+                information including name, description, and key details.
+            </p>
+
+            <div class="endpoint">
+                <span class="method">POST</span>
+                <a href="/compare.html" style="text-decoration: none;"><span class="url">/api/images/compare</span></a>
+            </div>
+            <p class="description">
+                Compares two images side-by-side to find similarities and differences. Useful for distinguishing between
+                similar species or objects.
+            </p>
+
+            <div class="endpoint">
+                <span class="method">POST</span>
+                <a href="/chat.html" style="text-decoration: none;"><span class="url">/api/images/chat</span></a>
+            </div>
+            <p class="description">
+                Enables an interactive chat session based on the context of a previously identified image. Ask follow-up
+                questions to learn more.
+            </p>
+        </div>
+
+        <div class="card">
+            <h2>🛠️ Technology Stack</h2>
+            <p style="line-height: 1.6; color: #d0d0d0;">
+                This backend service is built using <strong>Java Spring Boot</strong>, providing a robust and scalable
+                architecture.
+                It leverages the power of <strong>Google's Gemini 2.5 Flash</strong> model for multimodal analysis,
+                allowing it to "see" and understand images with incredible accuracy.
+            </p>
+        </div>
+    </div>
+
+    <footer>
+        &copy; 2024 anyID. All rights reserved.
+    </footer>
+</body>
+
+</html>

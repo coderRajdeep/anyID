@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Identify API - anyID</title>
+    <style>
+        :root {
+            --bg-color: #0a0a14;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --text-color: #ffffff;
+            --accent-color: #00ff9d;
+            --secondary-color: #7b1fa2;
+            --border-color: rgba(255, 255, 255, 0.1);
+            --code-bg: #1a1a24;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            background-image:
+                radial-gradient(circle at 10% 20%, rgba(123, 31, 162, 0.2) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(0, 255, 157, 0.15) 0%, transparent 40%);
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+            padding: 40px 20px;
+        }
+
+        .nav-back {
+            color: #a0a0a0;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav-back:hover {
+            color: white;
+        }
+
+        .nav-back::before {
+            content: '←';
+            margin-right: 8px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, var(--accent-color), #00d2ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .method-badge {
+            background: var(--secondary-color);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 1rem;
+            vertical-align: middle;
+            margin-left: 15px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+        }
+
+        h2 {
+            color: var(--accent-color);
+            margin-top: 0;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+
+        pre {
+            background: var(--code-bg);
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            border: 1px solid var(--border-color);
+            color: #e0e0e0;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .param-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .param-table th,
+        .param-table td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .param-table th {
+            color: #a0a0a0;
+            font-weight: 600;
+        }
+
+        .param-table td {
+            color: #e0e0e0;
+        }
+
+        .required {
+            color: #ff4d4d;
+            font-size: 0.8rem;
+            margin-left: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <a href="/" class="nav-back">Back to Home</a>
+
+        <header>
+            <h1>Identify API <span class="method-badge">POST</span></h1>
+            <p style="color: #a0a0a0; font-size: 1.2rem; margin-top: 10px;">/api/images/identify</p>
+        </header>
+
+        <div class="card">
+            <h2>Overview</h2>
+            <p style="line-height: 1.6; color: #d0d0d0;">
+                The Identify API is the core of anyID. It accepts an image (Base64 encoded) and uses Google's Gemini AI
+                to identify the main subject of the image. It returns a structured response containing the name, a
+                detailed description, and other relevant details.
+            </p>
+        </div>
+
+        <div class="card">
+            <h2>Request Body</h2>
+            <table class="param-table">
+                <thead>
+                    <tr>
+                        <th>Field</th>
+                        <th>Type</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>imageBase64<span class="required">*</span></td>
+                        <td>String</td>
+                        <td>The image file converted to a Base64 string.</td>
+                    </tr>
+                    <tr>
+                        <td>category</td>
+                        <td>String</td>
+                        <td>Optional hint for the AI (e.g., "Plant", "Vehicle").</td>
+                    </tr>
+                    <tr>
+                        <td>language</td>
+                        <td>String</td>
+                        <td>Target language for the description (e.g., "English", "Spanish").</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Example Request</h3>
+            <pre>
+{
+  "imageBase64": "data:image/jpeg;base64,/9j/4AAQSkZJRg...",
+  "category": "Plant",
+  "language": "English"
+}</pre>
+        </div>
+
+        <div class="card">
+            <h2>Response</h2>
+            <p style="color: #d0d0d0; margin-bottom: 15px;">Returns a JSON object with the identification results.</p>
+
+            <h3>Example Response</h3>
+            <pre>
+{
+  "name": "Monstera Deliciosa",
+  "description": "The Monstera Deliciosa, also known as the Swiss Cheese Plant, is a species of flowering plant native to tropical forests of southern Mexico...",
+  "details": "Family: Araceae\nNative: Tropical Americas",
+  "searchQuery": "Monstera Deliciosa care"
+}</pre>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat API - anyID</title>
+    <style>
+        :root {
+            --bg-color: #0a0a14;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --text-color: #ffffff;
+            --accent-color: #00ff9d;
+            --secondary-color: #7b1fa2;
+            --border-color: rgba(255, 255, 255, 0.1);
+            --code-bg: #1a1a24;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            background-image:
+                radial-gradient(circle at 10% 20%, rgba(123, 31, 162, 0.2) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(0, 255, 157, 0.15) 0%, transparent 40%);
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+            padding: 40px 20px;
+        }
+
+        .nav-back {
+            color: #a0a0a0;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav-back:hover {
+            color: white;
+        }
+
+        .nav-back::before {
+            content: '←';
+            margin-right: 8px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, var(--accent-color), #00d2ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .method-badge {
+            background: var(--secondary-color);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 1rem;
+            vertical-align: middle;
+            margin-left: 15px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+        }
+
+        h2 {
+            color: var(--accent-color);
+            margin-top: 0;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+
+        pre {
+            background: var(--code-bg);
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            border: 1px solid var(--border-color);
+            color: #e0e0e0;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .param-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .param-table th,
+        .param-table td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .param-table th {
+            color: #a0a0a0;
+            font-weight: 600;
+        }
+
+        .param-table td {
+            color: #e0e0e0;
+        }
+
+        .required {
+            color: #ff4d4d;
+            font-size: 0.8rem;
+            margin-left: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <a href="/" class="nav-back">Back to Home</a>
+
+        <header>
+            <h1>Chat API <span class="method-badge">POST</span></h1>
+            <p style="color: #a0a0a0; font-size: 1.2rem; margin-top: 10px;">/api/images/chat</p>
+        </header>
+
+        <div class="card">
+            <h2>Overview</h2>
+            <p style="line-height: 1.6; color: #d0d0d0;">
+                The Chat API enables a conversational interface. It takes a user's question along with the initial
+                description of an identified object to generate a context-aware response. This makes the AI feel like it
+                "remembers" what it just saw.
+            </p>
+        </div>
+
+        <div class="card">
+            <h2>Request Body</h2>
+            <table class="param-table">
+                <thead>
+                    <tr>
+                        <th>Field</th>
+                        <th>Type</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>message<span class="required">*</span></td>
+                        <td>String</td>
+                        <td>The user's follow-up question or comment.</td>
+                    </tr>
+                    <tr>
+                        <td>initialDescription<span class="required">*</span></td>
+                        <td>String</td>
+                        <td>The description text from the original identification result.</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Example Request</h3>
+            <pre>
+{
+  "message": "How often should I water it?",
+  "initialDescription": "The Monstera Deliciosa is a tropical plant..."
+}</pre>
+        </div>
+
+        <div class="card">
+            <h2>Response</h2>
+            <p style="color: #d0d0d0; margin-bottom: 15px;">Returns a plain string containing the AI's answer.</p>
+
+            <h3>Example Response</h3>
+            <pre>
+You should water your Monstera Deliciosa every 1-2 weeks, allowing the soil to dry out between waterings. Expect to water more often in brighter light and less often in lower light.</pre>
+        </div>
+    </div>
+</body>
+
+</html>
